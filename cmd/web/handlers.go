@@ -8,7 +8,8 @@ import (
 	"strconv"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
+// this is the method against the application struct
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
@@ -37,7 +38,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func showSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
@@ -47,7 +48,7 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Display a specific snippet for %d...", id)
 }
 
-func createSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
 		// most set before writeHeader() or write() otherwise it will have no effect
