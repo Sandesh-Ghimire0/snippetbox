@@ -6,14 +6,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/Sandesh-Ghimire0/snippetbox/pkg/models/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 // dependency injection
 // defining application struct to hold application wide dependencies for the web application
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
+	errorLog     *log.Logger
+	infoLog      *log.Logger
+	snippets *mysql.SnippetModel
 }
 
 func main() {
@@ -27,12 +30,13 @@ func main() {
 	db, err := openDB(*dsn)
 	if err != nil {
 		errorLog.Fatal(err)
-	}
+	} 
 	defer db.Close()
 
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
+		errorLog:     errorLog,
+		infoLog:      infoLog,
+		snippets: &mysql.SnippetModel{DB: db},
 	}
 
 	// By default go http server logs the error to the standard logger if we want to implement our errorLog to log error
