@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
+
+	"github.com/Sandesh-Ghimire0/snippetbox/pkg/models"
 )
 
 // this is the method against the application struct
@@ -15,24 +17,35 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return // most return otherwise below code will execute
 	}
 
-	files := []string{
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/home.page.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
+	s, err := app.snippets.Latest()
 
-	ts, err := template.ParseFiles(files...)
 	if err != nil {
 		app.ServerError(w, err)
 		return
 	}
 
-	// Use the ExecuteTemplate() method to write the content of the "base"
-	// template as the response body.
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.ServerError(w, err)
+	for _, snippet := range s {
+		fmt.Fprintf(w, "%v\n", snippet)
 	}
+
+	// files := []string{
+	// 	"./ui/html/base.layout.tmpl",
+	// 	"./ui/html/home.page.tmpl",
+	// 	"./ui/html/footer.partial.tmpl",
+	// }
+
+	// ts, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	app.ServerError(w, err)
+	// 	return
+	// }
+
+	// // Use the ExecuteTemplate() method to write the content of the "base"
+	// // template as the response body.
+	// err = ts.ExecuteTemplate(w, "base", nil)
+	// if err != nil {
+	// 	app.ServerError(w, err)
+	// }
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +55,21 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Display a specific snippet for %d...", id)
+	s, err := app.snippets.Get(id)
+
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.NotFound(w)
+		} else {
+			app.ServerError(w, err)
+		}
+
+		return
+
+	}
+
+	fmt.Fprintf(w, "%v", s)
+
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {

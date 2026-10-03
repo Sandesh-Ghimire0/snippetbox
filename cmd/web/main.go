@@ -21,7 +21,7 @@ type application struct {
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP Network Address")
-	dsn := flag.String("dsn", "web:sanghi@/snippetbox", "MySQL Data Source Name")
+	dsn := flag.String("dsn", "web:sanghi@/snippetbox?parseTime=true", "MySQL Data Source Name")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
