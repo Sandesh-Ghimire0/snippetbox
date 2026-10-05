@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -14,9 +15,10 @@ import (
 // dependency injection
 // defining application struct to hold application wide dependencies for the web application
 type application struct {
-	errorLog     *log.Logger
-	infoLog      *log.Logger
-	snippets *mysql.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	snippets      *mysql.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -30,13 +32,20 @@ func main() {
 	db, err := openDB(*dsn)
 	if err != nil {
 		errorLog.Fatal(err)
-	} 
+	}
 	defer db.Close()
 
+	// parse all the pages during start and stores in cache
+	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	app := &application{
-		errorLog:     errorLog,
-		infoLog:      infoLog,
-		snippets: &mysql.SnippetModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		snippets:      &mysql.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	// By default go http server logs the error to the standard logger if we want to implement our errorLog to log error
