@@ -35,7 +35,7 @@ func main() {
 	}
 	defer db.Close()
 
-	// parse all the pages during start and stores in cache
+	// parses all the pages during start and stores in cache
 	templateCache, err := newTemplateCache("./ui/html/")
 	if err != nil {
 		errorLog.Fatal(err)
