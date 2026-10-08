@@ -28,7 +28,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil || id < 1 {
 		app.NotFound(w)
 		return
@@ -50,17 +50,11 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s})
 }
 
-func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("create new snippet..."))
+}
 
-	if r.Method != http.MethodPost {
-		// most set before writeHeader() or write() otherwise it will have no effect
-		w.Header().Set("Allow", http.MethodPost)
-		// http.Error(w, "Method Not Allowed", 405)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		// w.WriteHeader(405)
-		// w.Write([]byte("Method Not Allowed"))
-		return
-	}
+func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 
 	title := "O snail"
 	content := "O snail\nClimb Mount Fuji,\nBut slowly,slowly!\n\n- Kobayashi Issa"
@@ -72,7 +66,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// redirect user to the relavant page
-	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+	// redirect user to the relavant page after creating snippet
+	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 
 }
