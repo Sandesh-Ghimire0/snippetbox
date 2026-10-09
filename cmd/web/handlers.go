@@ -86,6 +86,9 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// add the flash session to display the created snippet message
+	// this message is popped by showSnippet render-->addDefaultData method
+	app.session.Put(r.Context(), "flash", "Snippet Created Successfully!!")
 	// redirect user to the relavant page after creating snippet
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 

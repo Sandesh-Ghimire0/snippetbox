@@ -21,6 +21,7 @@ single ‘holding structure’ for your data.
 // holing structure for any kind of dynamic data that we want to pass in our HTML templates.
 type templateData struct {
 	CurrentYear int
+	Flash       string
 	Form        *forms.Form
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet

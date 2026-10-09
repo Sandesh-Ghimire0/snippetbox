@@ -22,10 +22,13 @@
             <a href="/snippet/create">New Snippet</a>
         </nav>
         <main>
+            {{with .Flash}}
+                <div class="flash">{{.}}</div>
+            {{end}}
             {{template "main" .}}
 
-            {{template "footer" .}}
         </main>
+            {{template "footer" .}}
     </body>
 </html>
 
