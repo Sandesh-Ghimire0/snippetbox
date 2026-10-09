@@ -4,28 +4,30 @@
 
 {{define "main"}}
 <h1>Add a new snippet</h1>
-<form action='/snippet/create' method='POST'>
-    <div>
-        <label>Title:</label>
-        <input type='text' name='title' value='{{.FormData.Get "title"}}'>
-        <label class="error">{{.FormErrors.title}}</label>
-    </div>
-    <div>
-        <label>Content:</label>
-        <textarea name='content'>{{.FormData.Get "content"}}</textarea>
-        <label class="error">{{.FormErrors.content}}</label>
-    </div>
-    <div>
-        {{/* get the value of expires and store exp variable */}}
-        {{$exp := or (.FormData.Get "expires") "365"}}
-        <label>Delete in:</label>
-        <input type='radio' name='expires' value='365' {{ if (eq $exp "365") }}checked{{end}}> One Year
-        <input type='radio' name='expires' value='7' {{ if (eq $exp "7") }}checked{{end}}> One Week
-        <input type='radio' name='expires' value='1' {{ if (eq $exp "1") }}checked{{end}}> One Day
-    </div>
-    <label class="error">{{.FormErrors.expires}}</label>
-    <div>
-        <input type='submit' value='Publish snippet'>
-    </div>
-</form>
+    <form action='/snippet/create' method='POST'>
+    {{with .Form}}
+        <div>
+            <label>Title:</label>
+            <input type='text' name='title' value='{{.Get "title"}}'>
+            <label class="error">{{.Errors.Get "title"}}</label>
+        </div>
+        <div>
+            <label>Content:</label>
+            <textarea name='content'>{{.Get "content"}}</textarea>
+            <label class="error">{{.Errors.Get "content"}}</label>
+        </div>
+        <div>
+            {{/* get the value of expires and store in exp variable */}}
+            {{$exp := or (.Get "expires") "365"}}
+            <label>Delete in:</label>
+            <input type='radio' name='expires' value='365' {{ if (eq $exp "365") }}checked{{end}}> One Year
+            <input type='radio' name='expires' value='7' {{ if (eq $exp "7") }}checked{{end}}> One Week
+            <input type='radio' name='expires' value='1' {{ if (eq $exp "1") }}checked{{end}}> One Day
+        </div>
+        <label class="error">{{.Errors.Get "expires"}}</label>
+        <div>
+            <input type='submit' value='Publish snippet'>
+        </div>
+    {{end}}
+    </form>
 {{end}}
