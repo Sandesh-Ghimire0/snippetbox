@@ -7,19 +7,23 @@
 <form action='/snippet/create' method='POST'>
     <div>
         <label>Title:</label>
-        <input type='text' name='title'>
+        <input type='text' name='title' value='{{.FormData.Get "title"}}'>
+        <label class="error">{{.FormErrors.title}}</label>
     </div>
     <div>
         <label>Content:</label>
-        <textarea name='content'></textarea>
+        <textarea name='content'>{{.FormData.Get "content"}}</textarea>
+        <label class="error">{{.FormErrors.content}}</label>
     </div>
     <div>
+        {{/* get the value of expires and store exp variable */}}
+        {{$exp := or (.FormData.Get "expires") "365"}}
         <label>Delete in:</label>
-        <input type='radio' name='expires' value='365' checked>
-        One Year
-        <input type='radio' name='expires' value='7'> One Week
-        <input type='radio' name='expires' value='1'> One Day
+        <input type='radio' name='expires' value='365' {{ if (eq $exp "365") }}checked{{end}}> One Year
+        <input type='radio' name='expires' value='7' {{ if (eq $exp "7") }}checked{{end}}> One Week
+        <input type='radio' name='expires' value='1' {{ if (eq $exp "1") }}checked{{end}}> One Day
     </div>
+    <label class="error">{{.FormErrors.expires}}</label>
     <div>
         <input type='submit' value='Publish snippet'>
     </div>
