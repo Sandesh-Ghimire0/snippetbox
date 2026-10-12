@@ -46,6 +46,7 @@ func main() {
 
 	sessionManager := scs.New()
 	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true
 
 	app := &application{
 		errorLog:      errorLog,
@@ -62,10 +63,19 @@ func main() {
 		Addr:     *addr,
 		ErrorLog: errorLog,
 		Handler:  app.routes(),
+
+		// connection is kept alive for 1 minute
+		IdleTimeout: time.Minute,
+		// if request header or body is still being read after 5s, then go will close the underlying connection,
+		// protect against the slow client attacks like slowloris
+		ReadTimeout:  5 * time.Second,
+		// 
+		WriteTimeout: 10 * time.Second, 
 	}
 
 	infoLog.Printf("starting the server on %s\n", *addr)
-	err = server.ListenAndServe()
+	// https server, with tls certificate
+	err = server.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 
 	errorLog.Fatal(err)
 
