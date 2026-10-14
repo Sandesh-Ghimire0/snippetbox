@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
@@ -56,6 +57,12 @@ func main() {
 		templateCache: templateCache,
 	}
 
+	// Initialize a tls.Config struct to hold the non-default TLS settings we want
+	tlsConfig := &tls.Config{
+		PreferServerCipherSuites: true,
+		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	// By default go http server logs the error to the standard logger if we want to implement our errorLog to log error
 	// we need to create a http.Server struct and add the required fields
 
@@ -63,14 +70,17 @@ func main() {
 		Addr:     *addr,
 		ErrorLog: errorLog,
 		Handler:  app.routes(),
+		TLSConfig: tlsConfig,
 
 		// connection is kept alive for 1 minute
 		IdleTimeout: time.Minute,
 		// if request header or body is still being read after 5s, then go will close the underlying connection,
 		// protect against the slow client attacks like slowloris
-		ReadTimeout:  5 * time.Second,
-		// 
-		WriteTimeout: 10 * time.Second, 
+		ReadTimeout: 5 * time.Second,
+		// close the connection if the server attempts to write to the connection after 10s
+		// http --> timer will start after the read of the request header finished,
+		// https --> timer will start after the request is first accepted
+		WriteTimeout: 10 * time.Second,
 	}
 
 	infoLog.Printf("starting the server on %s\n", *addr)
