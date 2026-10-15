@@ -7,7 +7,11 @@ import (
 
 // top-level data types that our database model will use and return
 
-var ErrNoRecord = errors.New("models: No matching records found")
+var (
+	ErrNoRecord           = errors.New("models: No matching records found")
+	ErrInvalidCredentials = errors.New("model: Invalid Credentials")
+	ErrDuplicateEmail     = errors.New("models: Duplicate Email")
+)
 
 type Snippet struct {
 	ID      int
@@ -15,4 +19,13 @@ type Snippet struct {
 	Content string
 	Created time.Time
 	Expires time.Time
+}
+
+type User struct {
+	ID             int
+	Name           string
+	Email          string
+	HashedPassword string
+	Created        string
+	Actvie         string
 }

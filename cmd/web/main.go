@@ -21,6 +21,7 @@ type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	snippets      *mysql.SnippetModel
+	users         *mysql.UserModel
 	session       *scs.SessionManager
 	templateCache map[string]*template.Template
 }
@@ -53,6 +54,7 @@ func main() {
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		snippets:      &mysql.SnippetModel{DB: db},
+		users:         &mysql.UserModel{DB: db},
 		session:       sessionManager,
 		templateCache: templateCache,
 	}
@@ -67,9 +69,9 @@ func main() {
 	// we need to create a http.Server struct and add the required fields
 
 	server := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
+		Addr:      *addr,
+		ErrorLog:  errorLog,
+		Handler:   app.routes(),
 		TLSConfig: tlsConfig,
 
 		// connection is kept alive for 1 minute
