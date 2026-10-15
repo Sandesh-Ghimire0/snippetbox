@@ -118,8 +118,18 @@ func (app *application) sigupUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintln(w, "save the user to DB..")
+	err = app.users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
+	if err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			form.Errors.Add("email", "Email is already used")
+			app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
+		} else {
+			app.ServerError(w, err)
+		}
+	}
 
+	app.session.Put(r.Context(), "flash", "Accout created successfully, Pleas login.")
+	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 }
 
 func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
