@@ -25,7 +25,7 @@ func (m *UserModel) Insert(name, email, password string) error {
 	_, err = m.DB.Exec(stmt, name, email, string(hashedPassword))
 	if err != nil {
 		// check if the error is of type mysql.MySQLError and assign to the variable
-		// get the number and string message 
+		// get the number and string message
 		// 1062 --> my sql status code of duplicate entry
 		// "users_uc_email" --> this message was set while creating the constraint in the DB
 		// return the duplicate email error message
@@ -41,7 +41,36 @@ func (m *UserModel) Insert(name, email, password string) error {
 }
 
 func (m *UserModel) Authenticate(email, password string) (int, error) {
-	return 0, nil
+	var id int
+	var hashedPassword []byte
+
+	stmt := "SELECT id, hashed_password FROM users WHERE email = ? AND active = TRUE"
+	// get the user data from users table
+	row := m.DB.QueryRow(stmt, email)
+	// insert data into these variables
+	err := row.Scan(&id, &hashedPassword)
+
+	// if there is no any row, then return invalid credentials
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, models.ErrInvalidCredentials
+		} else {
+			return 0, err
+		}
+	}
+
+	// if hashed password and password did not matched, return invalid credentials
+	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return 0, models.ErrInvalidCredentials
+		} else {
+			return 0, err
+		}
+	}
+
+	// return user id
+	return id, nil
 }
 
 func (m *UserModel) Get(id int) (*models.User, error) {
