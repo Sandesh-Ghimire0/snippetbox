@@ -95,11 +95,31 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display user signup form")
+	app.render(w, r, "signup.page.tmpl", &templateData{Form: forms.New(nil)})
 }
 
 func (app *application) sigupUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "sign up user..")
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+
+	form.Required("name", "email", "password")
+	form.MaxLength("name", 255)
+	form.MaxLength("email", 255)
+	form.MinLength("password", 10)
+	form.MatchesPattern("email", forms.EmailRX)
+
+	if !form.IsValid() {
+		app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
+		return
+	}
+
+	fmt.Fprintln(w, "save the user to DB..")
+
 }
 
 func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
