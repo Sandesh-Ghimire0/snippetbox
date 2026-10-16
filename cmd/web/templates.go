@@ -54,6 +54,7 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
 	// slice of relative paths to current working directory
+	// globbing --> using patterns to match the set of files in the filesystem
 	pages, err := filepath.Glob(path.Join(dir, "*.page.tmpl"))
 	if err != nil {
 		return nil, err
@@ -72,13 +73,13 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 			return nil, err
 		}
 
-		// get layout tmpl and add to ts
+		// get layout tmpl, parse it and add to ts
 		ts, err = ts.ParseGlob(path.Join(dir, "*.layout.tmpl"))
 		if err != nil {
 			return nil, err
 		}
 
-		// get partial tmpl and add to ts
+		// get partial tmpl, parse it and add to ts
 		ts, err = ts.ParseGlob(path.Join(dir, "*.partial.tmpl"))
 		if err != nil {
 			return nil, err

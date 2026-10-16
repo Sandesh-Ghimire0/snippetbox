@@ -26,6 +26,9 @@ type application struct {
 	templateCache map[string]*template.Template
 }
 
+type contextKey string
+const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP Network Address")
 	dsn := flag.String("dsn", "web:sanghi@/snippetbox?parseTime=true", "MySQL Data Source Name")

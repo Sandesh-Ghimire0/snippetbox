@@ -10,7 +10,7 @@ func (app *application) routes() http.Handler {
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 
 	// session is only required in dynamic routes, /static/ does not need session
-	dynamicMiddleWare := alice.New(app.session.LoadAndSave, noSurf)
+	dynamicMiddleWare := alice.New(app.session.LoadAndSave, noSurf, app.authenticate)
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /", dynamicMiddleWare.ThenFunc(app.home))                    // subtree path

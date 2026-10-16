@@ -27,5 +27,5 @@ type User struct {
 	Email          string
 	HashedPassword string
 	Created        string
-	Actvie         string
+	Active         bool
 }
