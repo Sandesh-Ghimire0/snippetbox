@@ -2,31 +2,39 @@ package main
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestPing(t *testing.T) {
-	// records the response status code, headers and body instead of actually writing them to a HTTP connection.
-	rr := httptest.NewRecorder()
+	// Create a new instance of our application struct. This just
+	// contains a couple of mock loggers (which discard anything written to them)
+	app := &application{
+		errorLog: log.New(io.Discard, "", 0),
+		infoLog:  log.New(io.Discard, "", 0),
+	}
 
-	// dummy http.Requeset
-	r, err := http.NewRequest(http.MethodGet, "/", nil)
+	// create a new https server
+	// pass the routes and handler, that server needs to test
+	// server starts at randomly chosen port
+	// defer to close the server after test finishes
+
+	ts := httptest.NewTLSServer(app.routes())
+	defer ts.Close()
+
+	// make GET /ping request against the test server
+	rs, err := ts.Client().Get(ts.URL + "/ping")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// call the ping handler with by passing response recorder and dummy http.request
-	ping(rr, r)
-
-	rs := rr.Result()
-
+	// check the response status and body
 	if rs.StatusCode != http.StatusOK {
 		t.Errorf("want %d; got %d", http.StatusOK, rs.StatusCode)
 	}
 
-	// check response body returned by the Ping handler
 	defer rs.Body.Close()
 	body, err := io.ReadAll(rs.Body)
 	if err != nil {
